@@ -1,13 +1,23 @@
 import requests
-
-response = requests.get("https://api.quotable.io/random", verify=False)
-
-if response.status_code == 200:
-    quote = response.json()["content"]
-    author = response.json()["author"]
-    print(f'Цитата: "{quote}"\nАвтор: {author}')
-    
-    with open("quote.txt", "w") as file:
-        file.write(f'Цитата: "{quote}"\nАвтор: {author}')
+def get_random_quote():
+    url = "https://api.quotable.io/random"
+    try:
+        response = requests.get(url, verify=False)
+        if response.status_code == 200:
+            data = response.json()
+            quote = data["content"]
+            author = data["author"]
+            return quote, author
+        else:
+            return None, "Не вдалося отримати цитату. Помилка сервера."
+    except requests.exceptions.RequestException as e:
+        return None, f"Сталася помилка при запиті: {e}"
+quote, author = get_random_quote()
+if quote:
+    print(f"Цитата: \"{quote}\"")
+    print(f"- {author}")
+    with open("quote.txt", "w", encoding="utf-8") as file:
+        file.write(f"Цитата: \"{quote}\"\n- {author}")
+        print("\nЦитата збережена у файл 'quote.txt'.")
 else:
-    print(f"Не вдалося отримати цитату. Статус: {response.status_code}")
+    print(author)
